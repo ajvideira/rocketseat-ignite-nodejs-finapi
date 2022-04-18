@@ -1,0 +1,18 @@
+{
+  "name": "finapi",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js"
+  },
+  "repository": "git@github.com:ajvideira/rocketseat-ignite-nodejs-finapi.git",
+  "author": "Jonathan Alba Videira <jonathan.videira@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  },
+  "dependencies": {
+    "express": "^4.17.3",
+    "uuid": "^8.3.2"
+  }
+}
