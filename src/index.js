@@ -10,9 +10,13 @@ app.use(express.json());
 app.post('/account', (request, response) => {
   const { name, cpf } = request.body;
 
-  const id = uuidv4();
+  const userAlreadyExists = customers.some((customer) => customer.cpf === cpf);
 
-  customers.push({ name, cpf, id, statement: [] });
+  if (userAlreadyExists) {
+    return response.status(400).json({ error: 'User already exists!' });
+  }
+
+  customers.push({ name, cpf, id: uuidv4(), statement: [] });
 
   return response.status(201).send();
 });
