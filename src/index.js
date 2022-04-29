@@ -21,6 +21,14 @@ const verifyIfExistsAccountCPF = (request, response, next) => {
   return next();
 };
 
+const getBalance = (statement) =>
+  statement.reduce(
+    (acc, operation) =>
+      acc +
+      (operation.type === 'credit' ? operation.amount : -operation.amount),
+    0
+  );
+
 app.post('/account', (request, response) => {
   const { name, cpf } = request.body;
 
@@ -41,6 +49,22 @@ app.get('/statement', verifyIfExistsAccountCPF, (request, response) => {
   return response.json(customer.statement);
 });
 
+app.get('/statement/:date', verifyIfExistsAccountCPF, (request, response) => {
+  const { customer } = request;
+
+  const { date } = request.params;
+
+  const formattedDate = new Date(date + ' 00:00');
+
+  const statementOnDate = customer.statement.filter(
+    (operation) =>
+      new Date(operation.created_at).toDateString() ===
+      formattedDate.toDateString()
+  );
+
+  return response.json(statementOnDate);
+});
+
 app.post('/deposit', verifyIfExistsAccountCPF, (request, response) => {
   const { description, amount } = request.body;
 
@@ -51,6 +75,28 @@ app.post('/deposit', verifyIfExistsAccountCPF, (request, response) => {
     amount,
     created_at: new Date(),
     type: 'credit',
+  };
+
+  customer.statement.push(statementOperation);
+
+  return response.status(201).send();
+});
+
+app.post('/withdraw', verifyIfExistsAccountCPF, (request, response) => {
+  const { amount } = request.body;
+
+  const { customer } = request;
+
+  const balance = getBalance(customer.statement);
+
+  if (amount > balance) {
+    return response.json({ error: 'Insufficient funds!' });
+  }
+
+  const statementOperation = {
+    amount,
+    created_at: new Date(),
+    type: 'debit',
   };
 
   customer.statement.push(statementOperation);
