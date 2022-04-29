@@ -29,6 +29,12 @@ const getBalance = (statement) =>
     0
   );
 
+app.get('/account', verifyIfExistsAccountCPF, (request, response) => {
+  const { customer } = request;
+
+  return response.json(customer);
+});
+
 app.post('/account', (request, response) => {
   const { name, cpf } = request.body;
 
@@ -41,6 +47,16 @@ app.post('/account', (request, response) => {
   customers.push({ name, cpf, id: uuidv4(), statement: [] });
 
   return response.status(201).send();
+});
+
+app.put('/account', verifyIfExistsAccountCPF, (request, response) => {
+  const { name } = request.body;
+
+  const { customer } = request;
+
+  customer.name = name;
+
+  return response.send();
 });
 
 app.get('/statement', verifyIfExistsAccountCPF, (request, response) => {
